@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="form-styles.css">
+  <script src="../../BE/fc.js"></script>
+  <script src="../../BE/server.js"></script>
+  <script src="Form.js"></script> 
+  <title>Tính Doanh Thu</title>
+</head>
+<body>
+  <button class="back-button" onclick="window.location.href='../index.html'">Quay lại</button>
+
+  <div class="logo-container">
+    <img src="../cgvlogo.png" alt="Logo" />
+  </div>
+
+  <div class="container">
+    <h1>Tính Doanh Thu Rạp</h1>
+
+    <div id="form-container">
+      <div class="form-group">
+        <label for="ngayBatDau">Ngày bắt đầu:</label>
+        <input type="date" id="ngayBatDau">
+      </div>
+      <div class="form-group">
+        <label for="ngayKetThuc">Ngày kết thúc:</label>
+        <input type="date" id="ngayKetThuc">
+      </div>
+      <div class="form-group" style="flex: 0 0 auto;">
+        <button onclick="callFunction(getTinhDoanhThuTheoNgayParams,'Jason')">Tính doanh thu rạp</button>
+      </div>
+    </div>
+    <div id="output2"></div>
+    <!-- <h2>Tính Doanh Thu Suất Chiếu</h2>
+    <div id="form-container">
+      <div class="form-group">
+        <label for="idSuatChieu">ID Suất Chiếu:</label>
+        <input type="number" id="idSuatChieu" placeholder="Nhập ID suất chiếu">
+      </div>
+      <div class="form-group" style="flex: 0 0 auto;">
+        <button onclick="callFunction(gettinhDoanhThu,'VNĐ')">Tính doanh thu suất chiếu</button>
+      </div>
+    </div>
+    <div id="output"></div> -->
+  </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Gọi Thủ Tục SQL</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="../BE/fc.js"></script>
+  <script src="../BE/server.js"></script>
+  <script src="Form/Form.js"></script> 
+  <script src="Form/don't_open_it.js"></script>
+</head>
+<body>
+
+  <!-- ✅ Logo ở đầu trang -->
+  <!-- <img src="cgvlogo.png" alt="CGV Logo" class="logo" /> -->
+
+  <!-- Logo tí hon di chuyển -->
+  <img src="cgvlogo.png" alt="Tiny Logo" class="tiny-logo" id="tiny-logo" />
+
+  <div class="container">
+    <h2>Chọn Tiện ích</h2>
+    <div class="button-container">
+      <button onclick="location.href='Form/TimSuatChieu.html'">
+        Tìm, Sửa, Xóa suất Chiếu
+      </button>
+      <button onclick="location.href='Form/TinhDoanhThuSuatChieu.html'">
+        Tính doanh thu rạp
+      </button>
+      <button onclick="location.href='Form/GetTopPhim.html'">
+        Top 3 doanh thu phim
+      </button>
+      <button onclick="location.href='Form/insert_showtime.html'">
+        Thêm suất chiếu
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.body.addEventListener("mousemove", followMouse);
+  </script>
+  
+</body>
+</html>

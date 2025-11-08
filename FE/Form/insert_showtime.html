@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="form-styles.css">
+  <script src="../../BE/fc.js"></script>
+  <script src="../../BE/server.js"></script>
+  <script src="Form.js"></script> 
+  <title>Gọi Thủ Tục Tìm Top Phim</title>
+</head>
+<body>
+
+  <!-- Logo ở góc phải trên -->
+  <button class="back-button" onclick="window.location.href='../index.html'">Quay lại</button>
+  <div class="logo-container">
+    <img src="../cgvlogo.png" alt="Logo" />
+  </div>
+
+  <div class="container">
+    <h1 style="margin-top: 20px;">Thêm Suất Chiếu</h1>
+
+    <div id="form-container">
+        <div class="form-group">
+            <label for="movie_format">Định dạng phim:</label>
+            <input type="text" id="movie_format" placeholder="VD: 2D, 3D">
+          </div>
+          
+          <div class="form-group">
+            <label for="language">Ngôn ngữ:</label>
+            <select id="language">
+              <option value="Vietsub">Vietsub</option>
+              <option value="Thuyết minh">Thuyết minh</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="date">Ngày chiếu:</label>
+            <input type="date" id="date">
+          </div>
+          
+          <div class="form-group">
+            <label for="start_time">Giờ bắt đầu:</label>
+            <input type="time" id="start_time" step="1">
+          </div>
+          
+          <div class="form-group">
+            <label for="cinema_id">Mã rạp:</label>
+            <input type="text" id="cinema_id" placeholder="VD: CN001">
+          </div>
+          
+          <div class="form-group">
+            <label for="room_number">Số phòng:</label>
+            <input type="number" id="room_number">
+          </div>
+          
+          <div class="form-group">
+            <label for="movie_id">Mã phim:</label>
+            <input type="text" id="movie_id" placeholder="VD: MV12345678">
+          </div> 
+          <div class="form-group">
+            <button onclick="callFunction(getinsert,'insert')">Thêm suất chiếu</button>
+          </div>
+          
+          <div style="flex-basis: 100%; margin-top: 10px; text-align: left;">
+            <button onclick="call('get_all_showtimes', [])">Danh sách</button>
+          </div>
+                   
+    </div>
+    <div id="output">
+    </div>
+  </div>
+</body>
+</html>
