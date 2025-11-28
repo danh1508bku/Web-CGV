@@ -1,65 +1,37 @@
-const db = require('../database/db');
+const { sql, poolPromise } = require('../database/db');
 
 let function_Procedure_Names = [];
 
 /**
- * Retrieves the names of all stored functions and procedures from the 'CINEMA' schema in the database.
- * The function updates the global variable 'function_Procedure_Names' with the names of these routines.
- * Logs an error message if the query fails.
+ * Retrieves the names of all stored functions and procedures from the database.
+ * Updates the global variable 'function_Procedure_Names' with the names of these routines.
  */
+async function getFunction_Procedure_FromDatabase() {
+  try {
+    const pool = await poolPromise;
 
-function getFunction_Procedure_FromDatabase() {
-  // Define the SQL query to select the names and types of all routines (functions and procedures)
-  // from the 'CINEMA' schema in the database.
-  // This query targets the 'information_schema.routines' table, which holds metadata about
-  // stored routines in the database.
-  const query = `
-    SELECT ROUTINE_NAME, ROUTINE_TYPE
-    FROM information_schema.routines
-    WHERE ROUTINE_SCHEMA = 'CINEMA';`;
+    // Query for SQL Server to get stored procedures and functions
+    const query = `
+      SELECT ROUTINE_NAME, ROUTINE_TYPE
+      FROM INFORMATION_SCHEMA.ROUTINES
+      WHERE ROUTINE_CATALOG = DB_NAME()
+      AND ROUTINE_TYPE IN ('PROCEDURE', 'FUNCTION')`;
 
-  // Execute the SQL query using the database connection object 'db'.
-  // The 'query' method takes the SQL query and a callback function that handles the query result.
-  db.query(query, (err, results) => {
-    // If an error occurs during the query execution, log the error message to the console
-    // and return early to exit the function.
-    if (err) {
-      console.error('Lỗi khi truy vấn các hàm:', err);
-      return;
-    }
+    const result = await pool.request().query(query);
 
-    // Map over the results array to extract the 'ROUTINE_NAME' from each row.
-    // Update the global variable 'function_Procedure_Names' with the names of these routines.
-    function_Procedure_Names = results.map(row => row.ROUTINE_NAME);
+    // Map the results to get routine names
+    function_Procedure_Names = result.recordset.map(row => row.ROUTINE_NAME);
 
-    // Log the list of function and procedure names to the console for debugging purposes.
     console.log('Danh sách các hàm và thủ tục:', function_Procedure_Names);
-  });
+  } catch (err) {
+    console.error('Lỗi khi truy vấn các hàm:', err);
+  }
 }
 
 /**
  * Calls a stored procedure with the given name and parameters.
- *
- * First, it checks if the procedure exists and is allowed to be called by checking
- * if the procedure name is in the list of allowed function and procedure names.
- * If the procedure does not exist or is not allowed to be called, it returns a 400 error.
- *
- * Then, it constructs the SQL query that calls the stored procedure with the given
- * parameters. The parameters are passed as an array of values, and the query is
- * constructed by replacing the parameter placeholders with the actual values.
- *
- * The query is then executed using the 'db.query' method, which takes the SQL query
- * and a callback function that handles the query result. If an error occurs during
- * the query execution, the error message is logged to the console and a 500 error
- * is returned with the error message.
- *
- * Otherwise, the result of the query is returned as a JSON response.
- *
- * @param {string} procName name of the stored procedure to call
- * @param {array} params parameters to pass to the stored procedure
- * @param {object} res Express.js response object
  */
-function callStoredProcedure(procName, params, res) {
+async function callStoredProcedure(procName, params, res) {
   // Check if the procedure exists and is allowed to be called
   if (!function_Procedure_Names.includes(procName)) {
     return res.status(400).json({
@@ -67,159 +39,138 @@ function callStoredProcedure(procName, params, res) {
     });
   }
 
-  // Construct the SQL query that calls the stored procedure with the given parameters
-  const placeholders = params.map(() => '?').join(', ');
-  const sql = `CALL ${procName}(${placeholders})`;
-
   console.log(`Gọi thủ tục: ${procName} với tham số:`, params);
 
-  // Execute the query
-  db.query(sql, params, (err, results) => {
-    if (err) {
-      // If there's an error, log it and return a 500 error
-      console.error(`Lỗi khi gọi thủ tục ${procName}:`, err);
-      return res.status(500).json({
-        error: 'Lỗi khi gọi thủ tục SQL',
-        message: err.message,
-      });
-    }
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
 
-    // Return the result of the query as a JSON response
-    res.json(results[0]);
-  });
+    // Add parameters to the request
+    params.forEach((param, index) => {
+      request.input(`param${index}`, param);
+    });
+
+    // Execute stored procedure
+    const result = await request.execute(procName);
+
+    // Return the first recordset
+    res.json(result.recordset || result.recordsets[0] || []);
+  } catch (err) {
+    console.error(`Lỗi khi gọi thủ tục ${procName}:`, err);
+    return res.status(500).json({
+      error: 'Lỗi khi gọi thủ tục SQL',
+      message: err.message,
+    });
+  }
 }
 
 /**
  * Calls a stored function with the given name and parameters.
- *
- * If the function does not exist or is not allowed to be called, returns a 400 error.
- * If the query fails, returns a 500 error with the error message.
- * Otherwise, returns the result of the query, which is expected to be a single value.
- *
- * @param {string} procName name of the stored function to call
- * @param {array} params parameters to pass to the stored function
- * @param {object} res Express.js response object
  */
-function callStoredFunction(procName, params, res) {
-  // First, check if the function exists and is allowed to be called
+async function callStoredFunction(procName, params, res) {
+  // Check if the function exists and is allowed to be called
   if (!function_Procedure_Names.includes(procName)) {
-    return res.status(400).json({ error: `Hàm ${procName} không hợp lệ hoặc không được phép gọi` });
+    return res.status(400).json({
+      error: `Hàm ${procName} không hợp lệ hoặc không được phép gọi`
+    });
   }
 
-  // Construct the SQL query that will call the stored function
-  const placeholders = params.map(() => '?').join(', ');
-  const sql = `SELECT ${procName}(${placeholders})`;
+  console.log(`Gọi hàm: ${procName} với tham số:`, params);
 
-  console.log(`Gọi thủ tục: ${procName} với tham số:`, params);
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
 
-  // Execute the query
-  db.query(sql, params, (err, results) => {
-    if (err) {
-      // If there's an error, log it and return a 500 error
-      console.error(`Lỗi khi gọi hàm ${procName}:`, err);
+    // Add parameters to the request
+    params.forEach((param, index) => {
+      request.input(`param${index}`, param);
+    });
 
-      return res.status(500).json({ error: 'Lỗi khi gọi hàm SQL', message: err.message });
-    }
+    // For scalar functions in SQL Server, we use SELECT
+    const paramPlaceholders = params.map((_, i) => `@param${i}`).join(', ');
+    const query = `SELECT dbo.${procName}(${paramPlaceholders}) AS result`;
 
-    console.log(`Kết quả từ hàm ${procName}:`, results);
-    // If the query is successful, return the result
-    res.json(results); 
-  });
+    const result = await request.query(query);
+
+    console.log(`Kết quả từ hàm ${procName}:`, result.recordset);
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(`Lỗi khi gọi hàm ${procName}:`, err);
+    return res.status(500).json({
+      error: 'Lỗi khi gọi hàm SQL',
+      message: err.message
+    });
+  }
 }
 
-  /**
- * Calls a stored function that returns a JSON value and returns the result as a JSON response.
- *
- * The stored function is assumed to take the given parameters and return a JSON value.
- * The JSON value will be parsed and returned as the response body.
- *
- * If the function does not exist or is not allowed to be called, returns a 400 error.
- * If the query fails, returns a 500 error with the error message.
- *
- * @param {string} funcName name of the stored function to call
- * @param {array} params parameters to pass to the stored function
- * @param {object} res Express.js response object
+/**
+ * Calls a stored function that returns JSON data
  */
-function callStoredFunctionJason(funcName, params, res) {
+async function callStoredFunctionJason(funcName, params, res) {
   if (!function_Procedure_Names.includes(funcName)) {
-    return res.status(400).json({ error: `Hàm ${funcName} không hợp lệ hoặc không được phép gọi` });
+    return res.status(400).json({
+      error: `Hàm ${funcName} không hợp lệ hoặc không được phép gọi`
+    });
   }
 
-  // Construct the SQL query that will call the stored function
-  const placeholders = params.map(() => '?').join(', ');
-  let sql;
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
 
-  // Depending on the name of the stored function, construct a different SQL query
-  if (funcName === 'GetTopPhim') {
-    // For GetTopPhim, the query will return a JSON array of objects with the following structure:
-    //   {
-    //     "TuaDe": string,
-    //     "DoanhThu": number
-    //   }
-    sql = `SELECT * FROM JSON_TABLE(
-      ${funcName}(${placeholders}),
-      '$[*]' COLUMNS (
-        TuaDe VARCHAR(30) PATH '$.TuaDe',
-        DoanhThu INT PATH '$.DoanhThu'
-      )
-    ) AS result_table`;
+    // Add parameters to the request
+    params.forEach((param, index) => {
+      request.input(`param${index}`, param);
+    });
 
-  } else if (funcName === 'ThongKeDoanhThuTheoKhoangNgay') {
-    // For ThongKeDoanhThuTheoKhoangNgay, the query will return a JSON array of objects with the following structure:
-    //   {
-    //     "TenRap": string,
-    //     "TinhThanh": string,
-    //     "DiaChi": string,
-    //     "DoanhThu": number
-    //   }
-    sql = `SELECT * FROM JSON_TABLE(
-      ${funcName}(${placeholders}),
-      '$[*]' COLUMNS (
-        TenRap VARCHAR(30) PATH '$.TenRap',
-        TinhThanh VARCHAR(25) PATH '$.TinhThanh',
-        DiaChi VARCHAR(50) PATH '$.DiaChi',
-        DoanhThu INT PATH '$.DoanhThu'
-      )
-    ) AS DoanhThuTheoRap;`;
-  } else {
-    // If the stored function is not recognized, return a 400 error
-    return res.status(400).json({ error: `Hàm ${funcName} không được hỗ trợ` });
-  }
+    let query;
 
-  // Execute the query
-  db.query(sql, params, (err, results) => {
-    if (err) {
-      // If there's an error, log it and return a 500 error
-      console.error(`Lỗi khi gọi hàm ${funcName}:`, err);
-      return res.status(500).json({ error: 'Lỗi khi gọi hàm SQL', message: err.message });
+    // SQL Server uses different syntax for JSON
+    if (funcName === 'GetTopPhim') {
+      // Execute function and parse JSON result
+      const paramPlaceholders = params.map((_, i) => `@param${i}`).join(', ');
+      query = `
+        SELECT * FROM OPENJSON(dbo.${funcName}(${paramPlaceholders}))
+        WITH (
+          TuaDe NVARCHAR(30) '$.TuaDe',
+          DoanhThu INT '$.DoanhThu'
+        )`;
+    } else if (funcName === 'ThongKeDoanhThuTheoKhoangNgay') {
+      const paramPlaceholders = params.map((_, i) => `@param${i}`).join(', ');
+      query = `
+        SELECT * FROM OPENJSON(dbo.${funcName}(${paramPlaceholders}))
+        WITH (
+          TenRap NVARCHAR(30) '$.TenRap',
+          TinhThanh NVARCHAR(25) '$.TinhThanh',
+          DiaChi NVARCHAR(50) '$.DiaChi',
+          DoanhThu INT '$.DoanhThu'
+        )`;
+    } else {
+      return res.status(400).json({
+        error: `Hàm ${funcName} không được hỗ trợ`
+      });
     }
 
-    if (!results || results.length === 0) {
-      // If the query returns no data, return a 404 error
+    const result = await request.query(query);
+
+    if (!result.recordset || result.recordset.length === 0) {
       return res.status(404).json({ error: 'Không có dữ liệu trả về' });
     }
 
-    console.log(`Kết quả từ hàm ${funcName}:`, results);
-    // If the query is successful, return the result
-    res.json(results);
-  });
+    console.log(`Kết quả từ hàm ${funcName}:`, result.recordset);
+    res.json(result.recordset);
+  } catch (err) {
+    console.error(`Lỗi khi gọi hàm ${funcName}:`, err);
+    return res.status(500).json({
+      error: 'Lỗi khi gọi hàm SQL',
+      message: err.message
+    });
+  }
 }
 
-
 /**
- * Calls a stored procedure to insert a new showtime with the given parameters.
-
- * @param {string} procName - The name of the stored procedure to call.
- * @param {array} params - The parameters for the stored procedure, expected to include:
- *   [movie_format, language, date, start_time, cinema_id, room_number, movie_id].
- * @param {object} res - The Express.js response object for sending JSON responses.
+ * Calls a stored procedure to insert a new showtime
  */
-
-function callinsertShowtime(procName, params, res) {
-  // Construct the SQL query to call the stored procedure
-  const placeholders = params.map(() => '?').join(', ');
-  const sql = `CALL ${procName}(${placeholders})`;
-
+async function callinsertShowtime(procName, params, res) {
   // Check if the parameters are valid
   if (!params || params.length !== 7) {
     console.error(`❌ Lỗi khi thực thi thủ tục ${procName}: Số lượng tham số không đủ`);
@@ -238,145 +189,144 @@ function callinsertShowtime(procName, params, res) {
     });
   }
 
-  // Execute the query
-  db.query(sql, params, (err, rows) => {
-    if (err) {
-      console.error(`❌ Lỗi khi thực thi thủ tục ${procName}:`, err);
-      return res.status(500).json({
-        error: err.message,
-        success: false,
-      });
-    }
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+
+    // Add parameters with proper names
+    request.input('movie_format', params[0]);
+    request.input('language', params[1]);
+    request.input('date', params[2]);
+    request.input('start_time', params[3]);
+    request.input('cinema_id', params[4]);
+    request.input('room_number', params[5]);
+    request.input('movie_id', params[6]);
+
+    const result = await request.execute(procName);
 
     // Get the message from the stored procedure
-    const message = rows?.[0]?.[0]?.message || rows?.[0]?.[0]?.ThongBao || "Thêm suất chiếu thành công!";
+    const message = result.recordset?.[0]?.message ||
+                   result.recordset?.[0]?.ThongBao ||
+                   "Thêm suất chiếu thành công!";
+
     res.status(200).json({
       message: message,
-      result: rows,
+      result: result.recordset,
       success: true,
     });
-  });
+  } catch (err) {
+    console.error(`❌ Lỗi khi thực thi thủ tục ${procName}:`, err);
+    return res.status(500).json({
+      error: err.message,
+      success: false,
+    });
+  }
 }
 
 /**
- * Calls the stored procedure that updates a showtime.
- *
- * @param {string} procName the name of the stored procedure
- * @param {array} params the parameters to pass to the stored procedure
- * @param {object} res the Express.js response object
+ * Calls the stored procedure that updates a showtime
  */
-function callupdateShowtime(procName, params, res) {
-  const placeholders = params.map(() => '?').join(', ');
-  const sql = `CALL ${procName}(${placeholders})`;
-
-  // Unpack the parameters
+async function callupdateShowtime(procName, params, res) {
   const [
-    showtime_id, // The ID of the showtime to update
-    movie_format, // The format of the movie
-    language, // The language of the movie
-    date, // The date of the showtime
-    start_time, // The start time of the showtime
-    cinema_id, // The ID of the cinema
-    room_number, // The room number
-    movie_id // The ID of the movie
+    showtime_id,
+    movie_format,
+    language,
+    date,
+    start_time,
+    cinema_id,
+    room_number,
+    movie_id
   ] = params;
 
   // Check if the showtime_id parameter is valid
   if (showtime_id === undefined || showtime_id === null) {
-    // If it's not valid, return a 400 error
     return res.status(400).json({
       error: "showtime_id is required",
       success: false,
     });
   }
 
-  // Execute the query
-  db.query(sql, params, (err, rows) => {
-    if (err) {
-      // If there's an error, log it and return a 500 error
-      console.error(`❌ Lỗi khi thực thi thủ tục ${procName}:`, err);
-      return res.status(500).json({
-        error: err.message,
-        success: false,
-      });
-    }
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+
+    // Add parameters
+    request.input('showtime_id', showtime_id);
+    request.input('movie_format', movie_format);
+    request.input('language', language);
+    request.input('date', date);
+    request.input('start_time', start_time);
+    request.input('cinema_id', cinema_id);
+    request.input('room_number', room_number);
+    request.input('movie_id', movie_id);
+
+    const result = await request.execute(procName);
 
     // Get the message from the stored procedure
-    const message = rows?.[0]?.[0]?.message || rows?.[0]?.[0]?.ThongBao || "Cập nhật suất chiếu thành công!";
+    const message = result.recordset?.[0]?.message ||
+                   result.recordset?.[0]?.ThongBao ||
+                   "Cập nhật suất chiếu thành công!";
 
-    // Return the result
     res.status(200).json({
       message: message,
-      result: rows,
+      result: result.recordset,
       success: true,
     });
-  });
+  } catch (err) {
+    console.error(`❌ Lỗi khi thực thi thủ tục ${procName}:`, err);
+    return res.status(500).json({
+      error: err.message,
+      success: false,
+    });
+  }
 }
 
 /**
- * Calls the stored procedure that deletes a showtime.
- *
- * @param {string} procName the name of the stored procedure
- * @param {array} params the parameters to pass to the stored procedure
- * @param {object} res the Express.js response object
+ * Calls the stored procedure that deletes a showtime
  */
-function calldeleteShowtime(procName, params, res) {
-  // Unpack the parameters
+async function calldeleteShowtime(procName, params, res) {
   const [showtime_id] = params;
 
   // Check if the showtime_id parameter is valid
   if (showtime_id === undefined || showtime_id === null || isNaN(showtime_id)) {
-    // If it's not valid, return a 400 error
     return res.status(400).json({
-      // The error message
       error: "showtime_id is required and must be a number",
-      // Whether the request was successful
       success: false,
     });
   }
 
-  // Construct the SQL query to call the stored procedure
-  const placeholders = params.map(() => '?').join(', ');
-  const sql = `CALL ${procName}(${placeholders})`;
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
 
-  // Execute the query
-  db.query(sql, params, (err, rows) => {
-    if (err) {
-      // If there's an error, log it and return a 500 error
-      console.error(`❌ Lỗi khi thực thi thủ tục ${procName}:`, err);
-      return res.status(500).json({
-        // The error message
-        error: err.message,
-        // Whether the request was successful
-        success: false,
-      });
-    }
+    request.input('showtime_id', showtime_id);
+
+    const result = await request.execute(procName);
 
     // Get the message from the stored procedure
-    const message = rows?.[0]?.[0]?.message || rows?.[0]?.[0]?.ThongBao;
+    const message = result.recordset?.[0]?.message ||
+                   result.recordset?.[0]?.ThongBao;
 
-    // Check if the message is "Xóa suất chiếu thành công!"
+    // Check if the message indicates success
     if (message === "Xóa suất chiếu thành công!") {
-      // If it is, return a 200 response with the message
       return res.status(200).json({
-        // The message from the stored procedure
         message: message,
-        // The result of the query
-        result: rows,
-        // Whether the request was successful
+        result: result.recordset,
         success: true,
       });
     } else {
-      // If the message is not "Xóa suất chiếu thành công!",
-      // return a 404 response with the message
       return res.status(404).json({
-        // The error message
         error: message || "Không tìm thấy suất chiếu để xóa",
-        // Whether the request was successful
         success: false,
       });
     }
-  });
+  } catch (err) {
+    console.error(`❌ Lỗi khi thực thi thủ tục ${procName}:`, err);
+    return res.status(500).json({
+      error: err.message,
+      success: false,
+    });
+  }
 }
 
 module.exports = {
@@ -384,8 +334,7 @@ module.exports = {
   callStoredProcedure,
   callStoredFunction,
   callStoredFunctionJason,
-
   callinsertShowtime,
   callupdateShowtime,
   calldeleteShowtime
-}; 
+};
