@@ -1,18 +1,18 @@
-const mysql = require('mysql2');
+const sql = require('mssql/msnodesqlv8');
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'thienstyle06',
-  database: 'Cinema',
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error('❌ Kết nối CSDL thất bại:', err.message);
-  } else {
-    console.log('✅ Kết nối CSDL thành công');
+const config = {
+  server: 'LAPTOP-P0HATMA3\\SQLEXPRESS',
+  database: 'Movie',   // hoặc tên DB bạn muốn
+  driver: 'msnodesqlv8',
+  options: {
+    trustedConnection: true
   }
-});
+};
 
-module.exports = db;
+sql.connect(config)
+  .then(() => {
+    console.log("✅ Kết nối SQL Server thành công!");
+  })
+  .catch(err => {
+    console.error("❌ Lỗi kết nối:", err);
+  });
