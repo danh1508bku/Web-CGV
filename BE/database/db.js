@@ -1,27 +1,51 @@
 const sql = require('mssql');
 
+// Thử config 1: Sử dụng localhost + port (đơn giản nhất)
 const config = {
-  server: 'LAPTOP-P0HATMA3\\SQLEXPRESS',
+  server: 'localhost',
+  port: 1433,
   database: 'Movie',
   options: {
-    encrypt: false,  // Tắt encryption cho local dev
-    trustServerCertificate: true,  // Trust self-signed certificate
-    enableArithAbort: true,
-    instanceName: 'SQLEXPRESS'  // Chỉ định instance name
+    encrypt: false,
+    trustServerCertificate: true,
+    enableArithAbort: true
   },
   authentication: {
-    type: 'default',  // Windows Authentication
-    options: {
-      userName: '',  // Để trống cho Windows Auth
-      password: ''
-    }
+    type: 'default'
   },
   pool: {
     max: 10,
     min: 0,
     idleTimeoutMillis: 30000
-  }
+  },
+  connectionTimeout: 30000,
+  requestTimeout: 30000
 };
+
+// Nếu config trên không work, uncomment config 2 bên dưới và comment config 1
+/*
+// Config 2: Sử dụng tên máy + instance
+const config = {
+  server: 'LAPTOP-P0HATMA3\\SQLEXPRESS',
+  database: 'Movie',
+  options: {
+    encrypt: false,
+    trustServerCertificate: true,
+    enableArithAbort: true,
+    instanceName: 'SQLEXPRESS'
+  },
+  authentication: {
+    type: 'default'
+  },
+  pool: {
+    max: 10,
+    min: 0,
+    idleTimeoutMillis: 30000
+  },
+  connectionTimeout: 30000,
+  requestTimeout: 30000
+};
+*/
 
 // Tạo connection pool
 let poolPromise = sql.connect(config)
