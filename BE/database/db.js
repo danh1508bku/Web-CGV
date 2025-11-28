@@ -1,17 +1,16 @@
 const sql = require('mssql');
 
-// Thử config 1: Sử dụng localhost + port (đơn giản nhất)
+// Config: SQL Server Authentication
 const config = {
   server: 'localhost',
   port: 1433,
   database: 'Movie',
+  user: 'cgv_user',          // SQL Server username
+  password: 'CGV@2024',      // SQL Server password
   options: {
     encrypt: false,
     trustServerCertificate: true,
     enableArithAbort: true
-  },
-  authentication: {
-    type: 'default'
   },
   pool: {
     max: 10,
