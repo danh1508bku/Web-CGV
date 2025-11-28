@@ -1,13 +1,20 @@
-const sql = require('mssql/msnodesqlv8');
+const sql = require('mssql');
 
 const config = {
   server: 'LAPTOP-P0HATMA3\\SQLEXPRESS',
   database: 'Movie',
-  driver: 'msnodesqlv8',
   options: {
-    trustedConnection: true,
+    encrypt: false,  // Tắt encryption cho local dev
+    trustServerCertificate: true,  // Trust self-signed certificate
     enableArithAbort: true,
-    encrypt: false
+    instanceName: 'SQLEXPRESS'  // Chỉ định instance name
+  },
+  authentication: {
+    type: 'default',  // Windows Authentication
+    options: {
+      userName: '',  // Để trống cho Windows Auth
+      password: ''
+    }
   },
   pool: {
     max: 10,
