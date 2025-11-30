@@ -172,46 +172,30 @@ function renderTableWithEditAndSortButton(data) {
 function deleteRow(index) {
   const row = currentData[index];
   const form = document.forms['deleteForm'];
-  form.p_ID_SuatChieu.value = row.ID_SuatChieu;
+  form.p_MaSuatChieu.value = row.MaSuatChieu;
+  form.p_MaPhim.value = row.MaPhim;
   openModal('editModal2');
 }
 
 
 function getsuatchieu() {
-  const paramsStr = JSON.stringify([]);
-  const url = `${baseURL}proc=get_all_showtimes&params=${paramsStr}&func=False`;
-
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      currentData2 = data; 
-    })
+  // Function này không cần thiết nữa vì TimSuatChieu đã trả về đủ thông tin
+  return;
 }
-function editRow(index) {
-  // Tìm kiếm suất chiếu trong currentData dựa trên showtime_id
-  let output = document.getElementById('output');
-  const row1=currentData[index];
-  id=row1.ID_SuatChieu;
-  const row = currentData2.find(item => item.showtime_id === id);
-  const date = new Date(row.NgayBatDau);
-  date.setUTCDate(date.getUTCDate() + 1);
 
-  const formattedDate = date.toISOString().split("T")[0]; 
+function editRow(index) {
+  const row = currentData[index];
   const form = document.forms['updateForm'];
-  //output.innerHTML = '<h3>Kết quả:</h3>' + getTable(row);
   form.reset();
 
-  // // Gán dữ liệu vào các trường form
-  form.p_ID_SuatChieu.value = id;       // ID suất chiếu
-  form.p_DinhDangPhim.value = row.movie_format;      // Định dạng phim
-  form.p_NgonNgu.value = row.language;               // Ngôn ngữ
-  form.p_NgayBatDau.value = formattedDate;          // Ngày bắt đầu
-  form.p_ThoiGianBatDau.value = row.ThoiGianBatDau;  // Thời gian bắt đầu
-  form.p_MaRap.value = row.cinema_id;                // Mã rạp
-  form.p_PhongSo.value = row.room_number;            // Phòng số
-  form.p_ID_Phim.value = row.movie_id;               // ID phim
+  // Gán dữ liệu vào các trường form
+  form.p_MaSuatChieu.value = row.MaSuatChieu;
+  form.p_MaPhim.value = row.MaPhim;
+  form.p_MaRap.value = row.MaRap;
+  form.p_GioBatDauMoi.value = '';  // Để trống, user sẽ nhập giá trị mới nếu muốn
+  form.p_MaPhongMoi.value = '';    // Để trống, user sẽ nhập giá trị mới nếu muốn
 
-  // // Hiển thị modal để chỉnh sửa
+  // Hiển thị modal để chỉnh sửa
   openModal('editModal');
 }
 
