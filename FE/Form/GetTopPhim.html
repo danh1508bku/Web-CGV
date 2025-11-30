@@ -20,12 +20,27 @@
   <div class="container">
     <button onclick="toggleForm('form-container')">Tìm kiếm thông tin</button>
 
-    <h1 style="margin-top: 20px;">Top Phim theo Doanh Thu</h1>
+    <h1 style="margin-top: 20px;">Top 5 Phim Doanh Thu Cao Nhất</h1>
+
+ 
 
     <div id="form-container">
+
       <div class="form-group">
-        <label for="ngay_chieu">Ngày chiếu:</label>
-        <input type="date" id="ngay_chieu">
+
+        <label for="ngay_bat_dau">Ngày bắt đầu:</label>
+
+        <input type="date" id="ngay_bat_dau" required>
+
+      </div>
+
+ 
+
+      <div class="form-group">
+
+        <label for="ngay_ket_thuc">Ngày kết thúc:</label>
+
+        <input type="date" id="ngay_ket_thuc" required>
       </div>
 
       <div class="form-group" style="flex: 0 0 auto;">

@@ -11,11 +11,8 @@ function getTimSuatChieuParams() {
   };
 }
 function getTinhDoanhThuTheoNgayParams() {
-  const ngayBatDau = document.getElementById('ngayBatDau').value || null;
-  const ngayKetThuc = document.getElementById('ngayKetThuc').value || null;
-
   return {
-    proc: 'ThongKeDoanhThuTheoKhoangNgay',
+    proc: 'ThongKeDoanhThuVeCuaRap',  // was: ThongKeDoanhThuTheoKhoangNgay
     params: [ngayBatDau, ngayKetThuc]
   };
 }
@@ -33,50 +30,48 @@ function gettinhDoanhThu() {
   
 }
 function getTopPhim(){
-  const date = document.getElementById('ngay_chieu').value;
+  const ngayBatDau = document.getElementById('ngay_bat_dau').value || null;
+  const ngayKetThuc = document.getElementById('ngay_ket_thuc').value || null;
   return {
-    proc: 'GetTopPhim',
-    params: [date]
+    proc: 'Top5PhimDoanhThuCaoNhat',  // ✅ Đã đổi tên
+    params: [ngayBatDau, ngayKetThuc] 
   };
 }
 function getinsert(){
-  const movie_format = document.getElementById('movie_format').value.trim() || null;
-  const language = document.getElementById('language').value.trim() || null;
-  const date = document.getElementById('date').value || null;
-  const start_time = document.getElementById('start_time').value || null;
+  const showtime_id = document.getElementById('showtime_id').value.trim() || null;
+  const movie_id = document.getElementById('movie_id').value.trim() || null;
   const cinema_id = document.getElementById('cinema_id').value.trim() || null;
   const room_number = parseInt(document.getElementById('room_number').value) || null;
-  const movie_id = document.getElementById('movie_id').value.trim() || null;
+  const date = document.getElementById('date').value || null;
+  const movie_format = document.getElementById('movie_format').value.trim() || null;
+  const language = document.getElementById('language').value.trim() || null;
+  const status = document.getElementById('status').value.trim() || null;
+  const subtitle_type = document.getElementById('subtitle_type').value.trim() || null;
+  const start_time = document.getElementById('start_time').value || null;
   return {
-    proc: 'insert_showtime',
-    params: [movie_format, language, date, start_time , cinema_id, room_number, movie_id]
+    proc: 'sp_Insert_SuatChieu',  // ✅ Đã đổi tên
+    params: [showtime_id, movie_id, cinema_id, room_number, date, movie_format, language, status, subtitle_type, start_time]
   };
 }   
 function getupdate() {
   const form = document.getElementById('updateForm');
-
-  const showtime_id = parseInt(form.elements['p_ID_SuatChieu'].value) || null;
-  const movie_format = form.elements['p_DinhDangPhim'].value.trim() || null;
-  const language = form.elements['p_NgonNgu'].value.trim() || null;
-  const date = form.elements['p_NgayBatDau'].value || null;
-  const start_time = form.elements['p_ThoiGianBatDau'].value || null;
+  const showtime_id = form.elements['p_MaSuatChieu'].value.trim() || null;
+  const movie_id = form.elements['p_MaPhim'].value.trim() || null;
   const cinema_id = form.elements['p_MaRap'].value.trim() || null;
-  const room_number = parseInt(form.elements['p_PhongSo'].value) || null;
-  const movie_id = form.elements['p_ID_Phim'].value.trim() || null;
-
+  const start_time = form.elements['p_GioBatDauMoi'].value || null;
+  const room_number = parseInt(form.elements['p_MaPhongMoi'].value) || null;
   return {
-    proc: 'update_suatchieu',
-    params: [showtime_id, movie_format, language, date, start_time, cinema_id, room_number, movie_id]
+    proc: 'Update_ThongTinSuatChieu',  // ✅ Đã đổi tên
+    params: [showtime_id, movie_id, cinema_id, start_time, room_number]  // 5 params vs 8
   };
 }
 function getdelete() {
   const form = document.getElementById('deleteForm');
-
-  const showtime_id = parseInt(form.elements['p_ID_SuatChieu'].value) || null;
-
+  const showtime_id = form.elements['p_MaSuatChieu'].value.trim() || null;
+  const movie_id = form.elements['p_MaPhim'].value.trim() || null;
   return {
-    proc: 'delete_suatchieu',
-    params: [showtime_id]
+    proc: 'Delete_SuatChieu',  // ✅ Đã đổi tên
+    params: [showtime_id, movie_id]  // ✅ 2 params
   };
 }
 

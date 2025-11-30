@@ -22,42 +22,133 @@
 
     <div id="form-container">
         <div class="form-group">
-            <label for="movie_format">Định dạng phim:</label>
-            <input type="text" id="movie_format" placeholder="VD: 2D, 3D">
+            <label for="showtime_id">Mã suất chiếu (7 ký tự):</label>
+
+            <input type="text" id="showtime_id" placeholder="VD: SC00001" maxlength="7" required>
+
           </div>
-          
+
+ 
+
           <div class="form-group">
-            <label for="language">Ngôn ngữ:</label>
-            <select id="language">
-              <option value="Vietsub">Vietsub</option>
-              <option value="Thuyết minh">Thuyết minh</option>
-            </select>
+
+            <label for="movie_id">Mã phim (10 ký tự):</label>
+
+            <input type="text" id="movie_id" placeholder="VD: PHIM000001" maxlength="10" required>
+
           </div>
-          
+
+ 
+
           <div class="form-group">
-            <label for="date">Ngày chiếu:</label>
-            <input type="date" id="date">
+
+            <label for="cinema_id">Mã rạp (5 ký tự):</label>
+
+            <input type="text" id="cinema_id" placeholder="VD: RAP01" maxlength="5" required>
+
           </div>
-          
+
+ 
+
           <div class="form-group">
-            <label for="start_time">Giờ bắt đầu:</label>
-            <input type="time" id="start_time" step="1">
-          </div>
-          
-          <div class="form-group">
-            <label for="cinema_id">Mã rạp:</label>
-            <input type="text" id="cinema_id" placeholder="VD: CN001">
-          </div>
-          
-          <div class="form-group">
+
             <label for="room_number">Số phòng:</label>
-            <input type="number" id="room_number">
+
+            <input type="number" id="room_number" min="1" required>
+
           </div>
-          
+
+ 
+
           <div class="form-group">
-            <label for="movie_id">Mã phim:</label>
-            <input type="text" id="movie_id" placeholder="VD: MV12345678">
-          </div> 
+
+            <label for="date">Ngày chiếu:</label>
+
+            <input type="date" id="date" required>
+
+          </div>
+
+ 
+
+          <div class="form-group">
+
+            <label for="movie_format">Định dạng chiếu:</label>
+
+            <select id="movie_format" required>
+
+              <option value="">-- Chọn định dạng --</option>
+
+              <option value="2D">2D</option>
+
+              <option value="3D">3D</option>
+
+              <option value="IMAX">IMAX</option>
+
+              <option value="4DX">4DX</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="form-group">
+
+            <label for="language">Ngôn ngữ:</label>
+
+            <input type="text" id="language" placeholder="VD: Tiếng Việt" maxlength="20" required>
+
+          </div>
+
+ 
+
+          <div class="form-group">
+
+            <label for="status">Trạng thái:</label>
+
+            <select id="status" required>
+
+              <option value="">-- Chọn trạng thái --</option>
+
+              <option value="Mở bán" selected>Mở bán</option>
+
+              <option value="Khóa bán">Khóa bán</option>
+
+              <option value="Đã chiếu">Đã chiếu</option>
+
+              <option value="Hủy">Hủy</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="form-group">
+
+            <label for="subtitle_type">Hình thức dịch thuật:</label>
+
+            <select id="subtitle_type" required>
+
+              <option value="">-- Chọn hình thức --</option>
+
+              <option value="PhuDe" selected>Phụ đề</option>
+
+              <option value="LongTieng">Lồng tiếng</option>
+
+            </select>
+
+          </div>
+
+ 
+
+          <div class="form-group">
+
+            <label for="start_time">Giờ bắt đầu:</label>
+
+            <input type="time" id="start_time" step="1" required>
+
+          </div>
           <div class="form-group">
             <button onclick="callFunction(getinsert,'insert')">Thêm suất chiếu</button>
           </div>

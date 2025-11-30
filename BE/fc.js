@@ -78,11 +78,12 @@ function call(proc, params) {
 
   fetch(url)
     .then(response => response.json())
-    .then(data => {
+    .then(result => {
       let output = document.getElementById('output');
-
-      if (data.error) {
-        output.textContent = 'Lỗi: ' + data.error;
+      // ✅ Backend mới trả về { success: true, data: [...] }
+      const data = result.data || result;
+      if (result.error || !result.success) {
+        output.textContent = 'Lỗi: ' + (result.error || 'Không có dữ liệu');
         return;
       }
 
@@ -224,16 +225,29 @@ function call2(proc, params, unit ) {
   // Gọi API với URL chứa tham số chuỗi
   fetch(url)
     .then(response => response.json())
-    .then(data => {
-      const firstRow = data[0];
-      const value = firstRow[Object.keys(firstRow)[0]];
-      const formattedValue = value.toLocaleString().replace(/\./g, ' ');
-      output.innerHTML = `<h3>Kết quả:</h3> Doanh thu: ${formattedValue} ${unit}`;
-    })
-    .catch(error => {
-      console.error('Lỗi:', error);
-      document.getElementById('output').textContent = 'Đã xảy ra lỗi khi gọi API!';
-    });
+    fetch(url)
+  .then(response => response.json())
+  .then(result => {
+      let output;
+      if (proc == 'Top5PhimDoanhThuCaoNhat') {
+          output = document.getElementById('output');
+      }
+      else if (proc == 'ThongKeDoanhThuVeCuaRap') {
+          output = document.getElementById('output2');
+      }
+      const data = result.data || result;
+      if (result.error || !result.success) {
+          output.textContent = 'Lỗi: ' + (result.error || 'Không có dữ liệu');
+          return;
+      }
+      output.textContent = JSON.stringify(data, null, 2);
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById('output').textContent = 'Đã xảy ra lỗi khi gọi API!';
+});
+
+
 }
 
 function call3(proc, params) {

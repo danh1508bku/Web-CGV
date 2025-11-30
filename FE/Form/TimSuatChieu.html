@@ -60,31 +60,45 @@
 
     <!-- Nút đóng (×) -->
 
-    <h3 style="width: 100%; text-align: center;">Cập nhật suất chiếu</h3>
+    <h3 style="width: 100%; text-align: center;">Cập nhật suất chiếu (Giờ/Phòng)</h3>
+
     <form id="updateForm" style="width: 100%; display: flex; flex-wrap: wrap; gap: 10px;">
+
       <div style="width: 45%;">
-        <label>ID Suất Chiếu: <input type="number" name="p_ID_SuatChieu" required></label>
+
+        <label>Mã Suất Chiếu: <input type="text" name="p_MaSuatChieu" maxlength="7" required readonly></label>
+
       </div>
+
       <div style="width: 45%;">
-        <label>Định Dạng Phim: <input type="text" name="p_DinhDangPhim" maxlength="9" required></label>
+
+        <label>Mã Phim: <input type="text" name="p_MaPhim" maxlength="10" required readonly></label>
+
       </div>
+
       <div style="width: 45%;">
-        <label>Ngôn Ngữ: <input type="text" name="p_NgonNgu" maxlength="25" required></label>
+
+        <label>Mã Rạp: <input type="text" name="p_MaRap" maxlength="5" required readonly></label>
+
       </div>
+
       <div style="width: 45%;">
-        <label>Ngày Bắt Đầu: <input type="date" name="p_NgayBatDau" required></label>
+
+        <label>Giờ Bắt Đầu Mới: <input type="time" name="p_GioBatDauMoi"></label>
+
       </div>
+
       <div style="width: 45%;">
-        <label>Thời Gian Bắt Đầu: <input type="time" name="p_ThoiGianBatDau" required></label>
+
+        <label>Mã Phòng Mới: <input type="number" name="p_MaPhongMoi" min="1"></label>
+
       </div>
-      <div style="width: 45%;">
-        <label>Mã Rạp: <input type="text" name="p_MaRap" maxlength="5" required></label>
-      </div>
-      <div style="width: 45%;">
-        <label>Phòng Số: <input type="number" name="p_PhongSo" required></label>
-      </div>
-      <div style="width: 45%;">
-        <label>ID Phim: <input type="text" name="p_ID_Phim" maxlength="10" required></label>
+
+ 
+
+      <div style="width: 100%; padding: 10px; background: #fffacd; border-radius: 4px; font-size: 13px;">
+
+        <strong>Lưu ý:</strong> Chỉ có thể cập nhật Giờ Bắt Đầu và/hoặc Phòng Chiếu. Để trống nếu không muốn thay đổi.
       </div>
 
       <!-- Các nút Cập nhật và Hủy -->
@@ -101,13 +115,35 @@
     
     <h3 style="text-align: center;">Xóa suất chiếu</h3>
     <form id="deleteForm" style="display: flex; flex-direction: column; gap: 15px;">
-      <label>ID Suất Chiếu: 
-        <input type="number" name="p_ID_SuatChieu" required>
+      <label>Mã Suất Chiếu:
+
+        <input type="text" name="p_MaSuatChieu" maxlength="7" required readonly>
+
       </label>
-      
+
+ 
+
+      <label>Mã Phim:
+
+        <input type="text" name="p_MaPhim" maxlength="10" required readonly>
+
+      </label>
+
+ 
+
+      <div style="padding: 10px; background: #ffebee; border-radius: 4px; font-size: 13px; color: #c62828;">
+
+        <strong>⚠️ Cảnh báo:</strong> Hành động này không thể hoàn tác!
+
+      </div>
+
+ 
+
       <!-- Nút Xác nhận và Hủy -->
+
       <div style="display: flex; justify-content: space-between; padding-top: 10px;">
-        <button type="button" onclick="callFunction(getdelete, 'delete');callFunction(getTimSuatChieuParams,null)">Xác nhận</button>
+
+        <button type="button" style="background: #f44336;" onclick="callFunction(getdelete, 'delete');callFunction(getTimSuatChieuParams,null)">Xác nhận xóa</button>
         <button type="button" onclick="closeModal('editModal2');callFunction(getTimSuatChieuParams,null)">Hủy</button>
       </div>
       <div id="output3"></div>
