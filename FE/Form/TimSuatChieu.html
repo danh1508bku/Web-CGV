@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="form-styles.css">
   <script src="../../BE/fc.js"></script>
-  <script src="../../BE/server.js"></script>
   <script src="Form.js"></script> 
   <title>Gọi Thủ Tục Tìm Suất Chiếu</title>
 </head>
@@ -42,7 +41,7 @@
       </div>
 
       <div class="form-group" style="flex: 0 0 auto;">
-        <button onclick="getsuatchieu();callFunction(getTimSuatChieuParams,null);showCheckMark('80px','140px','30px')">Lọc thông tin</button>
+        <button onclick="callFunction(getTimSuatChieuParams,null);showCheckMark('80px','140px','30px')">Lọc thông tin</button>
       </div>
     </div>
 
@@ -98,8 +97,8 @@
 
       <!-- Các nút Cập nhật và Hủy -->
       <div style="display: flex; justify-content: space-between; width: 100%; padding-top: 20px;">
-        <button type="button" onclick="callFunction(getupdate, 'update');callFunction(getTimSuatChieuParams,null)">Cập nhật</button>
-        <button type="button" onclick="closeModal('editModal');callFunction(getTimSuatChieuParams,null)">Hủy</button>
+        <button type="button" onclick="callFunction(getupdate, 'update');closeModalAndRefresh('editModal')">Cập nhật</button>
+        <button type="button" onclick="closeModal('editModal')">Hủy</button>
       </div>
       <div id="output2"></div>
     </form>
@@ -138,8 +137,8 @@
 
       <div style="display: flex; justify-content: space-between; padding-top: 10px;">
 
-        <button type="button" style="background: #f44336;" onclick="callFunction(getdelete, 'delete');callFunction(getTimSuatChieuParams,null)">Xác nhận xóa</button>
-        <button type="button" onclick="closeModal('editModal2');callFunction(getTimSuatChieuParams,null)">Hủy</button>
+        <button type="button" style="background: #f44336;" onclick="callFunction(getdelete, 'delete');closeModalAndRefresh('editModal2')">Xác nhận xóa</button>
+        <button type="button" onclick="closeModal('editModal2')">Hủy</button>
       </div>
       <div id="output3"></div>
     </form>

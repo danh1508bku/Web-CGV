@@ -144,7 +144,16 @@ function closeModal(a) {
 }
 function openModal(a) {
   const modal = document.getElementById(a);
-  modal.style.display = 'flex';  
+  modal.style.display = 'flex';
+}
+function closeModalAndRefresh(modalId) {
+  // Đóng modal
+  closeModal(modalId);
+
+  // Đợi 2 giây rồi refresh kết quả tìm kiếm
+  setTimeout(() => {
+    callFunction(getTimSuatChieuParams, null);
+  }, 2000);
 }
 function showCheckMark(a,b,c) {
   const checkMark = document.createElement('span');
