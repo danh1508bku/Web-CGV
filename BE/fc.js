@@ -199,40 +199,38 @@ function editRow(index) {
   openModal('editModal');
 }
 
-function call2(proc, params, unit ) {
-  // Tạo chuỗi params (ví dụ: ["thamso1", 123])
+function call2(proc, params, unit) {
   const paramsStr = JSON.stringify(params);
-
-  // Tạo URL với tham số proc và params, thêm func='True' vào URL
   const url = `${baseURL}proc=${proc}&params=${paramsStr}&func=True`;
 
-  // Gọi API với URL chứa tham số chuỗi
   fetch(url)
-    .then(response => response.json())
-    fetch(url)
-  .then(response => response.json())
-  .then(result => {
-      let output;
-      if (proc == 'Top5PhimDoanhThuCaoNhat') {
-          output = document.getElementById('output');
-      }
-      else if (proc == 'ThongKeDoanhThuVeCuaRap') {
-          output = document.getElementById('output2');
-      }
-      const data = result.data || result;
-      if (result.error || !result.success) {
-          output.textContent = 'Lỗi: ' + (result.error || 'Không có dữ liệu');
-          return;
-      }
-      output.textContent = JSON.stringify(data, null, 2);
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById('output').textContent = 'Đã xảy ra lỗi khi gọi API!';
-});
+      .then(response => response.json())
+      .then(result => {
 
+          const data = result.data || result;
+          const output = document.getElementById("output");
 
+          if (result.error || !result.success) {
+              output.innerHTML = `<p style="color:red;">Lỗi: ${result.error || "Không có dữ liệu"}</p>`;
+              return;
+          }
+
+          if (proc === "Top5PhimDoanhThuCaoNhat") {
+              output.innerHTML = renderTop5Table(data);
+          }
+          else if (proc === "ThongKeDoanhThuVeCuaRap") {
+              output.innerHTML = renderDoanhThuRapTable(data);
+          }
+          else {
+              output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          document.getElementById("output").innerHTML = "Đã xảy ra lỗi khi gọi API!";
+      });
 }
+
 
 function call3(proc, params) {
   // Tạo chuỗi params (ví dụ: ["thamso1", 123])
@@ -393,14 +391,11 @@ function callFunction(getDataFn,unit) {
   
 
 function getTable(table) {
-  // Chuyển chuỗi table thành HTML
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = table;
-  
-  // Lấy tất cả các hàng trong bảng
+
   const rows = tempDiv.querySelectorAll('tr');
-  
-  // Duyệt qua từng hàng và các ô trong bảng để xử lý ngày tháng
+
   rows.forEach(row => {
     const cells = row.querySelectorAll('td');
     cells.forEach(cell => {
@@ -409,20 +404,112 @@ function getTable(table) {
       // Kiểm tra nếu giá trị là một ngày (định dạng ISO)
       if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
         const date = new Date(value);
+
         if (!isNaN(date)) {
-          const day = String(date.getDate()).padStart(2, '0');
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const year = date.getFullYear();
-          
-          // Chỉ lấy ngày/tháng/năm (không có giờ, phút, giây)
-          cell.textContent = `${day}/${month}/${year}`;
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+
+            // Nếu TIME từ SQL bị biến thành ngày 1970-01-01
+            if (year === 1970 && month === '01' && day === '01') {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                cell.textContent = `${hours}:${minutes}`; // hiển thị giờ:phút
+            } else {
+                // Nếu là ngày thật
+                cell.textContent = `${day}/${month}/${year}`;
+            }
         }
-      }
+    }
+
     });
   });
 
-  // Trả về HTML của bảng đã xử lý
   return tempDiv.innerHTML;
 }
 
+
+function getTop5Phim() {
+    const start = document.getElementById("ngay_bat_dau").value;
+    const end = document.getElementById("ngay_ket_thuc").value;
+
+    return {
+        proc: "Top5PhimDoanhThuCaoNhat",
+        params: [start, end]
+    };
+}
+
+function renderTop5Table(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return "<p style='color:red;'>Không có dữ liệu</p>";
+  }
+
+  let html = `
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>Hạng</th>
+          <th>Mã Phim</th>
+          <th>Tựa Đề</th>
+          <th>Doanh Thu</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  data.forEach(item => {
+    html += `
+      <tr>
+        <td>${item.XepHang}</td>
+        <td>${item.MaPhim}</td>
+        <td>${item.TuaDe}</td>
+        <td>${parseInt(item.DoanhThu).toLocaleString()} ₫</td>
+      </tr>
+    `;
+  });
+
+  html += "</tbody></table>";
+  return html;
+}
+
+function getTinhDoanhThuTheoNgay() {
+    const start = document.getElementById("ngayBatDau").value;
+    const end = document.getElementById("ngayKetThuc").value;
+
+    return {
+        proc: "ThongKeDoanhThuVeCuaRap",
+        params: [start, end]
+    };
+}
+
+function renderDoanhThuRapTable(data) {
+    if (!Array.isArray(data) || data.length === 0) {
+        return "<p style='color:red;'>Không có dữ liệu</p>";
+    }
+
+    let html = `
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>Mã Rạp</th>
+                    <th>Tên Rạp</th>
+                    <th>Doanh Thu</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    data.forEach(item => {
+        html += `
+            <tr>
+                <td>${item.MaRap}</td>
+                <td>${item.TenRap}</td>
+                <td>${Number(item.DoanhThu).toLocaleString()} ₫</td>
+            </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+    return html;
+}
 
