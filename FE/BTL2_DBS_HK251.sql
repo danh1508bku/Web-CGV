@@ -1336,8 +1336,11 @@ CREATE OR ALTER PROCEDURE TimSuatChieu
     @TuaDe NVARCHAR(50) = NULL
 AS
 BEGIN
-    SELECT 
+    SELECT
         SC.MaSuatChieu,
+        SC.MaPhim,
+        SC.MaRap,
+        SC.MaPhongChieu,
         P.TuaDe,
         P.ThoiLuong,
         SC.GioBatDau,
@@ -1345,16 +1348,16 @@ BEGIN
         R.TenRap,
         SC.DinhDangChieu,
         SC.NgonNgu
-    FROM 
+    FROM
         SuatChieu SC
         JOIN Phim P ON SC.MaPhim = P.MaPhim
         JOIN RapChieuPhim R ON SC.MaRap = R.MaRap
-    WHERE 
+    WHERE
         (@NgayChieu IS NULL OR SC.NgayChieu = @NgayChieu)
         AND (@Gio IS NULL OR SC.GioBatDau >= @Gio)
         AND (@TenRap IS NULL OR R.TenRap = @TenRap)
         AND (@TuaDe IS NULL OR P.TuaDe = @TuaDe)
-    ORDER BY 
+    ORDER BY
         SC.NgayChieu DESC, SC.GioBatDau ASC;
 END;
 GO

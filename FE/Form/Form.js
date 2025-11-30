@@ -2,12 +2,11 @@ function getTimSuatChieuParams() {
   const ngay = document.getElementById('ngay').value || null;
   const gio = document.getElementById('gio').value || null;
   const rap = document.getElementById('rap').value.trim() || null;
-  const theloai = document.getElementById('theloai').value.trim() || null;
   const tuade = document.getElementById('tuade').value.trim() || null;
 
   return {
     proc: 'TimSuatChieu',
-    params: [ngay, gio, rap, theloai, tuade]
+    params: [ngay, gio, rap, tuade]
   };
 }
 function getTinhDoanhThuTheoNgayParams() {
