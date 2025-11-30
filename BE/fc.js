@@ -192,6 +192,25 @@ function editRow(index) {
   form.p_MaSuatChieu.value = row.MaSuatChieu;
   form.p_MaPhim.value = row.MaPhim;
   form.p_MaRap.value = row.MaRap;
+
+  // Hiển thị giá trị hiện tại như placeholder hoặc để trống
+  // Xử lý GioBatDau nếu là ISO datetime
+  if (row.GioBatDau) {
+    let timeValue = row.GioBatDau;
+    // Nếu là ISO datetime format, extract time
+    if (typeof timeValue === 'string' && timeValue.includes('T')) {
+      const date = new Date(timeValue);
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      timeValue = `${hours}:${minutes}`;
+    }
+    form.p_GioBatDauMoi.placeholder = `Hiện tại: ${timeValue}`;
+  }
+
+  if (row.MaPhongChieu) {
+    form.p_MaPhongMoi.placeholder = `Hiện tại: ${row.MaPhongChieu}`;
+  }
+
   form.p_GioBatDauMoi.value = '';  // Để trống, user sẽ nhập giá trị mới nếu muốn
   form.p_MaPhongMoi.value = '';    // Để trống, user sẽ nhập giá trị mới nếu muốn
 
@@ -310,7 +329,7 @@ function call4(proc, params) {
       }
     })
     .catch(error => {
-      const output = document.getElementById('output2');
+      const output = document.getElementById('output');
       output.innerHTML = `<h3 style="color: red;">❌ Lỗi kết nối: ${error.message}</h3>`;
     });
 }
@@ -340,7 +359,7 @@ function call5(proc, params) {
       }
     })
     .catch(error => {
-      const output = document.getElementById('output');
+      const output = document.getElementById('output2');
       output.innerHTML = `<h3 style="color: red;">❌ Lỗi kết nối: ${error.message}</h3>`;
     });
 }
@@ -371,7 +390,7 @@ function call6(proc, params) {
       }
     })
     .catch(error => {
-      const output = document.getElementById('output');
+      const output = document.getElementById('output3');
       output.innerHTML = `<h3 style="color: red;">❌ Lỗi kết nối: ${error.message}</h3>`;
     });
 }
