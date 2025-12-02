@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top 5 Phim Doanh Thu Cao Nhất</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    .filter-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .date-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 15px;
+      align-items: flex-end;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-group input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .btn-analyze {
+      background: #e50914;
+      color: white;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      height: 42px;
+    }
+    .btn-analyze:hover {
+      background: #b20710;
+    }
+    .btn-reset {
+      background: #555;
+      color: white;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      height: 42px;
+    }
+    .result-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .result-table th {
+      background: #e50914;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .result-table td {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      font-size: 15px;
+    }
+    .result-table tr:hover {
+      background: #f5f5f5;
+      transform: scale(1.01);
+      transition: all 0.2s;
+    }
+    .rank-cell {
+      text-align: center;
+      font-size: 40px;
+      width: 100px;
+    }
+    .rank-1 { color: #FFD700; }
+    .rank-2 { color: #C0C0C0; }
+    .rank-3 { color: #CD7F32; }
+    .rank-4, .rank-5 { color: #999; }
+    .movie-title {
+      font-weight: bold;
+      color: #333;
+      font-size: 18px;
+    }
+    .movie-code {
+      color: #666;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+    .revenue-cell {
+      text-align: right;
+      font-weight: bold;
+      color: #e50914;
+      font-size: 18px;
+    }
+    .info {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      padding: 40px;
+    }
+    .error {
+      color: #e50914;
+      padding: 15px;
+      background: #ffe6e6;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .stats-bar {
+      background: #f0f0f0;
+      height: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .stats-fill {
+      background: linear-gradient(90deg, #e50914, #ff6b6b);
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+  </style>
+  <script src="../../BE/fc.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2 style="text-align: center; color: #e50914; margin-bottom: 30px;">
+      🏆 TOP 5 PHIM DOANH THU CAO NHẤT
+    </h2>
+
+    <!-- Panel Chọn Ngày -->
+    <div class="filter-panel">
+      <h3>📅 Chọn Khoảng Thời Gian</h3>
+      <form id="dateForm" onsubmit="return handleAnalyze(event)">
+        <div class="date-row">
+          <div class="form-group">
+            <label for="ngay_bat_dau">Ngày Bắt Đầu <span style="color:red">*</span></label>
+            <input type="date" id="ngay_bat_dau" name="ngay_bat_dau" required>
+          </div>
+          <div class="form-group">
+            <label for="ngay_ket_thuc">Ngày Kết Thúc <span style="color:red">*</span></label>
+            <input type="date" id="ngay_ket_thuc" name="ngay_ket_thuc" required>
+          </div>
+          <button type="submit" class="btn-analyze">🏆 Xem Top 5</button>
+          <button type="button" class="btn-reset" onclick="window.location.href='../index.html'">
+            🏠 Trang Chủ
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Panel Kết Quả -->
+    <div class="result-panel">
+      <h3>🎬 Bảng Xếp Hạng</h3>
+      <div id="output">
+        <p class="info">
+          Vui lòng chọn khoảng thời gian và nhấn "Xem Top 5"<br>
+          để xem danh sách phim có doanh thu cao nhất
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function handleAnalyze(event) {
+      event.preventDefault();
+      
+      const form = document.getElementById('dateForm');
+      const startDate = form.ngay_bat_dau.value;
+      const endDate = form.ngay_ket_thuc.value;
+
+      // Validate
+      if (new Date(startDate) > new Date(endDate)) {
+        document.getElementById('output').innerHTML = 
+          '<p class="error">❌ Ngày bắt đầu không được lớn hơn ngày kết thúc!</p>';
+        return false;
+      }
+
+      callFunction('Top5PhimDoanhThuCaoNhat', [startDate, endDate]);
+      return false;
+    }
+
+    // Override renderTop5Table để có giao diện đẹp hơn
+    function renderTop5Table(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        return "<p class='error'>Không có dữ liệu phim trong khoảng thời gian này</p>";
+      }
+
+      // Tính tổng doanh thu để hiển thị phần trăm
+      const totalRevenue = data.reduce((sum, item) => sum + parseFloat(item.DoanhThu), 0);
+
+      const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+      const rankClass = ['rank-1', 'rank-2', 'rank-3', 'rank-4', 'rank-5'];
+
+      let html = `
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="text-align: center; width: 100px;">Hạng</th>
+              <th>Thông Tin Phim</th>
+              <th style="text-align: right; width: 250px;">Doanh Thu</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach((item, index) => {
+        const revenue = parseFloat(item.DoanhThu);
+        const percentage = ((revenue / totalRevenue) * 100).toFixed(1);
+
+        html += `
+          <tr>
+            <td class="rank-cell ${rankClass[index]}">
+              ${medals[index]}
+            </td>
+            <td>
+              <div class="movie-title">${item.TuaDe}</div>
+              <div class="movie-code">Mã phim: ${item.MaPhim}</div>
+            </td>
+            <td>
+              <div class="revenue-cell">${revenue.toLocaleString()} ₫</div>
+              <div style="text-align: right; font-size: 12px; color: #666; margin-top: 5px;">
+                ${percentage}% tổng doanh thu
+              </div>
+              <div class="stats-bar">
+                <div class="stats-fill" style="width: ${percentage}%"></div>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+          <tfoot>
+            <tr style="background: #f9f9f9; font-weight: bold;">
+              <td colspan="2" style="text-align: right; padding: 15px;">
+                TỔNG DOANH THU TOP 5:
+              </td>
+              <td class="revenue-cell" style="padding: 15px;">
+                ${totalRevenue.toLocaleString()} ₫
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+
+      return html;
+    }
+
+    // Override callFunction
+    const originalCallFunction = callFunction;
+    callFunction = function(proc, params) {
+      const paramsStr = JSON.stringify(params);
+      const url = `${baseURL}proc=${proc}&params=${paramsStr}&func=True`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(result => {
+          const data = result.data || result;
+          const output = document.getElementById("output");
+
+          if (result.error || !result.success) {
+            output.innerHTML = `<p class="error">Lỗi: ${result.error || "Không có dữ liệu"}</p>`;
+            return;
+          }
+
+          output.innerHTML = renderTop5Table(data);
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("output").innerHTML = '<p class="error">Đã xảy ra lỗi khi gọi API!</p>';
+        });
+    };
+
+    // Set default dates (last 30 days)
+    window.onload = function() {
+      const today = new Date();
+      const lastMonth = new Date(today);
+      lastMonth.setDate(today.getDate() - 30);
+
+      document.getElementById('ngay_ket_thuc').valueAsDate = today;
+      document.getElementById('ngay_bat_dau').valueAsDate = lastMonth;
+    };
+  </script>
+</body>
+</html>

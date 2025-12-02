@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thống Kê Doanh Thu Rạp</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .container {
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    .filter-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .date-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 15px;
+      align-items: flex-end;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-group input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .btn-analyze {
+      background: #e50914;
+      color: white;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      height: 42px;
+    }
+    .btn-analyze:hover {
+      background: #b20710;
+    }
+    .btn-reset {
+      background: #555;
+      color: white;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      height: 42px;
+    }
+    .btn-reset:hover {
+      background: #333;
+    }
+    .result-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .result-table th {
+      background: #e50914;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+    }
+    .result-table td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    .result-table tr:hover {
+      background: #f5f5f5;
+    }
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .stat-card h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .stat-card .value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .highlight-row {
+      background: #fffbcc !important;
+      font-weight: bold;
+    }
+    .info {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      padding: 40px;
+    }
+    .error {
+      color: #e50914;
+      padding: 15px;
+      background: #ffe6e6;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .currency {
+      color: #e50914;
+      font-weight: bold;
+    }
+    .rank-badge {
+      background: #ffd700;
+      color: #333;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+  </style>
+  <script src="../../BE/fc.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2 style="text-align: center; color: #e50914; margin-bottom: 30px;">
+      📊 THỐNG KÊ DOANH THU RẠP CHIẾU PHIM
+    </h2>
+
+    <!-- Panel Chọn Ngày -->
+    <div class="filter-panel">
+      <h3>📅 Chọn Khoảng Thời Gian</h3>
+      <form id="dateForm" onsubmit="return handleAnalyze(event)">
+        <div class="date-row">
+          <div class="form-group">
+            <label for="ngayBatDau">Ngày Bắt Đầu <span style="color:red">*</span></label>
+            <input type="date" id="ngayBatDau" name="ngayBatDau" required>
+          </div>
+          <div class="form-group">
+            <label for="ngayKetThuc">Ngày Kết Thúc <span style="color:red">*</span></label>
+            <input type="date" id="ngayKetThuc" name="ngayKetThuc" required>
+          </div>
+          <button type="submit" class="btn-analyze">📊 Phân Tích</button>
+          <button type="button" class="btn-reset" onclick="window.location.href='../index.html'">
+            🏠 Trang Chủ
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Thống Kê Tóm Tắt -->
+    <div id="statsPanel" style="display: none;">
+      <div class="stats-summary">
+        <div class="stat-card">
+          <h4>Tổng Số Rạp</h4>
+          <div class="value" id="totalCinemas">0</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h4>Tổng Doanh Thu</h4>
+          <div class="value" id="totalRevenue">0 ₫</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <h4>Doanh Thu TB/Rạp</h4>
+          <div class="value" id="avgRevenue">0 ₫</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          <h4>Rạp Doanh Thu Cao Nhất</h4>
+          <div class="value" id="topCinema" style="font-size: 14px;">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Kết Quả -->
+    <div class="result-panel">
+      <h3>📋 Chi Tiết Doanh Thu Theo Rạp</h3>
+      <div id="output">
+        <p class="info">
+          Vui lòng chọn khoảng thời gian và nhấn "Phân Tích"<br>
+          để xem thống kê doanh thu của các rạp chiếu phim
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function handleAnalyze(event) {
+      event.preventDefault();
+      
+      const form = document.getElementById('dateForm');
+      const startDate = form.ngayBatDau.value;
+      const endDate = form.ngayKetThuc.value;
+
+      // Validate
+      if (new Date(startDate) > new Date(endDate)) {
+        document.getElementById('output').innerHTML = 
+          '<p class="error">❌ Ngày bắt đầu không được lớn hơn ngày kết thúc!</p>';
+        return false;
+      }
+
+      callFunction('ThongKeDoanhThuVeCuaRap', [startDate, endDate]);
+      return false;
+    }
+
+    // Override callFunction để thêm thống kê
+    const originalCallFunction = callFunction;
+    callFunction = function(proc, params) {
+      const paramsStr = JSON.stringify(params);
+      const url = `${baseURL}proc=${proc}&params=${paramsStr}&func=True`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(result => {
+          const data = result.data || result;
+          const output = document.getElementById("output");
+
+          if (result.error || !result.success) {
+            output.innerHTML = `<p class="error">Lỗi: ${result.error || "Không có dữ liệu"}</p>`;
+            document.getElementById('statsPanel').style.display = 'none';
+            return;
+          }
+
+          if (!Array.isArray(data) || data.length === 0) {
+            output.innerHTML = '<p class="info">Không có dữ liệu trong khoảng thời gian này.</p>';
+            document.getElementById('statsPanel').style.display = 'none';
+            return;
+          }
+
+          // Sắp xếp theo doanh thu giảm dần
+          data.sort((a, b) => parseFloat(b.DoanhThu) - parseFloat(a.DoanhThu));
+
+          // Tính toán thống kê
+          const totalCinemas = data.length;
+          const totalRevenue = data.reduce((sum, item) => sum + parseFloat(item.DoanhThu), 0);
+          const avgRevenue = totalRevenue / totalCinemas;
+          const topCinema = data[0];
+
+          // Hiển thị thống kê
+          document.getElementById('statsPanel').style.display = 'block';
+          document.getElementById('totalCinemas').textContent = totalCinemas.toLocaleString();
+          document.getElementById('totalRevenue').textContent = totalRevenue.toLocaleString() + ' ₫';
+          document.getElementById('avgRevenue').textContent = avgRevenue.toLocaleString('vi-VN', {maximumFractionDigits: 0}) + ' ₫';
+          document.getElementById('topCinema').textContent = topCinema.TenRap;
+
+          // Render table với ranking
+          output.innerHTML = renderRevenueTableWithRanking(data);
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("output").innerHTML = '<p class="error">Đã xảy ra lỗi khi gọi API!</p>';
+          document.getElementById('statsPanel').style.display = 'none';
+        });
+    };
+
+    function renderRevenueTableWithRanking(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        return "<p class='error'>Không có dữ liệu</p>";
+      }
+
+      let html = `
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Hạng</th>
+              <th>Mã Rạp</th>
+              <th>Tên Rạp</th>
+              <th>Tỉnh Thành</th>
+              <th style="text-align: right;">Doanh Thu</th>
+              <th style="text-align: right;">% Tổng DT</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      const totalRevenue = data.reduce((sum, item) => sum + parseFloat(item.DoanhThu), 0);
+
+      data.forEach((item, index) => {
+        const revenue = parseFloat(item.DoanhThu);
+        const percentage = ((revenue / totalRevenue) * 100).toFixed(2);
+        const isTop = index < 3;
+        const rowClass = isTop ? 'highlight-row' : '';
+
+        let rankBadge = `<span class="rank-badge">#${index + 1}</span>`;
+        if (index === 0) rankBadge = `<span class="rank-badge" style="background: #FFD700;">🥇 #1</span>`;
+        else if (index === 1) rankBadge = `<span class="rank-badge" style="background: #C0C0C0;">🥈 #2</span>`;
+        else if (index === 2) rankBadge = `<span class="rank-badge" style="background: #CD7F32;">🥉 #3</span>`;
+
+        html += `
+          <tr class="${rowClass}">
+            <td style="text-align: center;">${rankBadge}</td>
+            <td>${item.MaRap}</td>
+            <td><strong>${item.TenRap}</strong></td>
+            <td>${item.TinhThanh}</td>
+            <td style="text-align: right;">
+              <span class="currency">${revenue.toLocaleString()} ₫</span>
+            </td>
+            <td style="text-align: right;">${percentage}%</td>
+          </tr>
+        `;
+      });
+
+      html += "</tbody></table>";
+      return html;
+    }
+
+    // Set default dates (last 30 days)
+    window.onload = function() {
+      const today = new Date();
+      const lastMonth = new Date(today);
+      lastMonth.setDate(today.getDate() - 30);
+
+      document.getElementById('ngayKetThuc').valueAsDate = today;
+      document.getElementById('ngayBatDau').valueAsDate = lastMonth;
+    };
+  </script>
+</body>
+</html>

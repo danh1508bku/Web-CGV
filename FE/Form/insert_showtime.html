@@ -1,165 +1,258 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="form-styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thêm Suất Chiếu</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .form-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #e50914;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .btn-submit {
+      background: #e50914;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-submit:hover {
+      background: #b20710;
+    }
+    .btn-back {
+      background: #555;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-back:hover {
+      background: #333;
+    }
+    .error-text {
+      color: #e50914;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    #message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
   <script src="../../BE/fc.js"></script>
-  <script src="../../BE/server.js"></script>
-  <script src="Form.js"></script> 
-  <title>Gọi Thủ Tục Tìm Top Phim</title>
 </head>
 <body>
+  <div class="form-container">
+    <h2 style="text-align: center; color: #e50914; margin-bottom: 30px;">
+      ➕ THÊM SUẤT CHIẾU MỚI
+    </h2>
 
-  <!-- Logo ở góc phải trên -->
-  <button class="back-button" onclick="window.location.href='../index.html'">Quay lại</button>
-  <div class="logo-container">
-    <img src="../cgvlogo.png" alt="Logo" />
-  </div>
-
-  <div class="container">
-    <h1 style="margin-top: 20px;">Thêm Suất Chiếu</h1>
-
-    <div id="form-container">
+    <form id="insertForm" onsubmit="return handleInsert(event)">
+      <div class="form-row">
         <div class="form-group">
-            <label for="showtime_id">Mã suất chiếu (7 ký tự):</label>
+          <label for="MaSuatChieu">Mã Suất Chiếu <span style="color:red">*</span></label>
+          <input type="text" id="MaSuatChieu" name="MaSuatChieu" 
+                 maxlength="7" required placeholder="VD: SC00001">
+          <span class="error-text" id="err_MaSuatChieu"></span>
+        </div>
 
-            <input type="text" id="showtime_id" placeholder="VD: SC00001" maxlength="7" required>
+        <div class="form-group">
+          <label for="MaPhim">Mã Phim <span style="color:red">*</span></label>
+          <input type="text" id="MaPhim" name="MaPhim" 
+                 maxlength="10" required placeholder="VD: P000000001">
+          <span class="error-text" id="err_MaPhim"></span>
+        </div>
+      </div>
 
-          </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="MaRap">Mã Rạp <span style="color:red">*</span></label>
+          <input type="text" id="MaRap" name="MaRap" 
+                 maxlength="5" required placeholder="VD: R0001">
+          <span class="error-text" id="err_MaRap"></span>
+        </div>
 
- 
+        <div class="form-group">
+          <label for="MaPhongChieu">Mã Phòng Chiếu <span style="color:red">*</span></label>
+          <input type="number" id="MaPhongChieu" name="MaPhongChieu" 
+                 min="1" required placeholder="VD: 1">
+          <span class="error-text" id="err_MaPhongChieu"></span>
+        </div>
+      </div>
 
-          <div class="form-group">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="NgayChieu">Ngày Chiếu <span style="color:red">*</span></label>
+          <input type="date" id="NgayChieu" name="NgayChieu" required>
+          <span class="error-text" id="err_NgayChieu"></span>
+        </div>
 
-            <label for="movie_id">Mã phim (10 ký tự):</label>
+        <div class="form-group">
+          <label for="GioBatDau">Giờ Bắt Đầu <span style="color:red">*</span></label>
+          <input type="time" id="GioBatDau" name="GioBatDau" required>
+          <span class="error-text" id="err_GioBatDau"></span>
+        </div>
+      </div>
 
-            <input type="text" id="movie_id" placeholder="VD: PHIM000001" maxlength="10" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="DinhDangChieu">Định Dạng Chiếu <span style="color:red">*</span></label>
+          <input type="text" id="DinhDangChieu" name="DinhDangChieu" 
+                 maxlength="10" required placeholder="VD: 2D, 3D, IMAX">
+          <span class="error-text" id="err_DinhDangChieu"></span>
+        </div>
 
-          </div>
+        <div class="form-group">
+          <label for="NgonNgu">Ngôn Ngữ <span style="color:red">*</span></label>
+          <input type="text" id="NgonNgu" name="NgonNgu" 
+                 maxlength="20" required placeholder="VD: Tiếng Việt">
+          <span class="error-text" id="err_NgonNgu"></span>
+        </div>
+      </div>
 
- 
+      <div class="form-row">
+        <div class="form-group">
+          <label for="TrangThai">Trạng Thái <span style="color:red">*</span></label>
+          <select id="TrangThai" name="TrangThai" required>
+            <option value="">-- Chọn trạng thái --</option>
+            <option value="Mở bán">Mở bán</option>
+            <option value="Khóa bán">Khóa bán</option>
+            <option value="Đã chiếu">Đã chiếu</option>
+            <option value="Hủy">Hủy</option>
+          </select>
+          <span class="error-text" id="err_TrangThai"></span>
+        </div>
 
-          <div class="form-group">
+        <div class="form-group">
+          <label for="HinhThucDichThuat">Hình Thức Dịch Thuật <span style="color:red">*</span></label>
+          <select id="HinhThucDichThuat" name="HinhThucDichThuat" required>
+            <option value="">-- Chọn hình thức --</option>
+            <option value="PhuDe">Phụ Đề</option>
+            <option value="LongTieng">Lồng Tiếng</option>
+          </select>
+          <span class="error-text" id="err_HinhThucDichThuat"></span>
+        </div>
+      </div>
 
-            <label for="cinema_id">Mã rạp (5 ký tự):</label>
+      <button type="submit" class="btn-submit">✅ Thêm Suất Chiếu</button>
+      <button type="button" class="btn-back" onclick="window.location.href='../index.html'">
+        🔙 Quay lại
+      </button>
+    </form>
 
-            <input type="text" id="cinema_id" placeholder="VD: RAP01" maxlength="5" required>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="room_number">Số phòng:</label>
-
-            <input type="number" id="room_number" min="1" required>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="date">Ngày chiếu:</label>
-
-            <input type="date" id="date" required>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="movie_format">Định dạng chiếu:</label>
-
-            <select id="movie_format" required>
-
-              <option value="">-- Chọn định dạng --</option>
-
-              <option value="2D">2D</option>
-
-              <option value="3D">3D</option>
-
-              <option value="IMAX">IMAX</option>
-
-              <option value="4DX">4DX</option>
-
-            </select>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="language">Ngôn ngữ:</label>
-
-            <input type="text" id="language" placeholder="VD: Tiếng Việt" maxlength="20" required>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="status">Trạng thái:</label>
-
-            <select id="status" required>
-
-              <option value="">-- Chọn trạng thái --</option>
-
-              <option value="Mở bán" selected>Mở bán</option>
-
-              <option value="Khóa bán">Khóa bán</option>
-
-              <option value="Đã chiếu">Đã chiếu</option>
-
-              <option value="Hủy">Hủy</option>
-
-            </select>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="subtitle_type">Hình thức dịch thuật:</label>
-
-            <select id="subtitle_type" required>
-
-              <option value="">-- Chọn hình thức --</option>
-
-              <option value="PhuDe" selected>Phụ đề</option>
-
-              <option value="LongTieng">Lồng tiếng</option>
-
-            </select>
-
-          </div>
-
- 
-
-          <div class="form-group">
-
-            <label for="start_time">Giờ bắt đầu:</label>
-
-            <input type="time" id="start_time" step="1" required>
-
-          </div>
-          <div class="form-group">
-            <button onclick="callFunction(getinsert,'insert')">Thêm suất chiếu</button>
-          </div>
-          
-          <div style="flex-basis: 100%; margin-top: 10px; text-align: left;">
-            <button onclick="call('get_all_showtimes', [])">Danh sách</button>
-          </div>
-                   
-    </div>
-    <div id="output">
-    </div>
+    <div id="message"></div>
   </div>
+
+  <script>
+    function handleInsert(event) {
+      event.preventDefault();
+
+      // Clear previous errors
+      document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
+
+      // Validate
+      let isValid = true;
+      const form = document.getElementById('insertForm');
+
+      // Validate Mã Suất Chiếu
+      const maSuatChieu = form.MaSuatChieu.value.trim();
+      if (!maSuatChieu || maSuatChieu.length !== 7) {
+        document.getElementById('err_MaSuatChieu').textContent = 'Mã suất chiếu phải có đúng 7 ký tự';
+        isValid = false;
+      }
+
+      // Validate Mã Phim
+      const maPhim = form.MaPhim.value.trim();
+      if (!maPhim || maPhim.length !== 10) {
+        document.getElementById('err_MaPhim').textContent = 'Mã phim phải có đúng 10 ký tự';
+        isValid = false;
+      }
+
+      // Validate Mã Rạp
+      const maRap = form.MaRap.value.trim();
+      if (!maRap || maRap.length !== 5) {
+        document.getElementById('err_MaRap').textContent = 'Mã rạp phải có đúng 5 ký tự';
+        isValid = false;
+      }
+
+      // Validate Mã Phòng Chiếu
+      const maPhong = parseInt(form.MaPhongChieu.value);
+      if (!maPhong || maPhong <= 0) {
+        document.getElementById('err_MaPhongChieu').textContent = 'Mã phòng phải là số nguyên dương';
+        isValid = false;
+      }
+
+      if (!isValid) return false;
+
+      // Prepare parameters
+      const params = [
+        maSuatChieu,
+        maPhim,
+        maRap,
+        maPhong,
+        form.NgayChieu.value,
+        form.DinhDangChieu.value.trim(),
+        form.NgonNgu.value.trim(),
+        form.TrangThai.value,
+        form.HinhThucDichThuat.value,
+        form.GioBatDau.value
+      ];
+
+      // Call API
+      callInsert('sp_Insert_SuatChieu', params);
+
+      return false;
+    }
+  </script>
 </body>
 </html>

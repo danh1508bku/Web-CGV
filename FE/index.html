@@ -2,42 +2,189 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Gọi Thủ Tục SQL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Quản Lý Rạp Chiếu Phim</title>
   <link rel="stylesheet" href="style.css">
-  <script src="../BE/fc.js"></script>
-  <script src="../BE/server.js"></script>
-  <script src="Form/Form.js"></script> 
-  <script src="Form/don't_open_it.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .logo {
+      display: block;
+      margin: 20px auto;
+      max-width: 200px;
+      height: auto;
+    }
+
+    .tiny-logo {
+      position: fixed;
+      width: 50px;
+      height: auto;
+      z-index: 9999;
+      pointer-events: none;
+      transition: all 0.1s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: white;
+      font-size: 36px;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 18px;
+      margin-bottom: 50px;
+    }
+
+    .button-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    }
+
+    .menu-card .icon {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .menu-card h3 {
+      color: #e50914;
+      font-size: 22px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .menu-card p {
+      color: #666;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .card-1 { border-top: 4px solid #e50914; }
+    .card-2 { border-top: 4px solid #4CAF50; }
+    .card-3 { border-top: 4px solid #2196F3; }
+    .card-4 { border-top: 4px solid #FF9800; }
+
+    @media (max-width: 768px) {
+      .button-container {
+        grid-template-columns: 1fr;
+      }
+      
+      h2 {
+        font-size: 28px;
+      }
+    }
+  </style>
 </head>
 <body>
-
-  <!-- ✅ Logo ở đầu trang -->
-  <!-- <img src="cgvlogo.png" alt="CGV Logo" class="logo" /> -->
-
   <!-- Logo tí hon di chuyển -->
   <img src="cgvlogo.png" alt="Tiny Logo" class="tiny-logo" id="tiny-logo" />
 
   <div class="container">
-    <h2>Chọn Tiện ích</h2>
+    <h2>🎬 HỆ THỐNG QUẢN LÝ RẠP CHIẾU PHIM</h2>
+    <p class="subtitle">Chọn chức năng bạn muốn sử dụng</p>
+
     <div class="button-container">
-      <button onclick="location.href='Form/TimSuatChieu.html'">
-        Tìm, Sửa, Xóa suất Chiếu
-      </button>
-      <button onclick="location.href='Form/TinhDoanhThuSuatChieu.html'">
-        Tính doanh thu rạp
-      </button>
-      <button onclick="location.href='Form/GetTopPhim.html'">
-        Top 3 doanh thu phim
-      </button>
-      <button onclick="location.href='Form/insert_showtime.html'">
-        Thêm suất chiếu
-      </button>
+      <!-- Card 1: Quản Lý Suất Chiếu -->
+      <a href="Form/TimSuatChieu.html" class="menu-card card-1">
+        <div class="icon">🎥</div>
+        <h3>Quản Lý Suất Chiếu</h3>
+        <p>Tìm kiếm, cập nhật và xóa suất chiếu. Hỗ trợ lọc theo ngày, giờ, rạp và phim.</p>
+      </a>
+
+      <!-- Card 2: Thêm Suất Chiếu -->
+      <a href="Form/insert_showtime.html" class="menu-card card-2">
+        <div class="icon">➕</div>
+        <h3>Thêm Suất Chiếu Mới</h3>
+        <p>Thêm suất chiếu mới vào hệ thống với đầy đủ thông tin và kiểm tra ràng buộc.</p>
+      </a>
+
+      <!-- Card 3: Thống Kê Doanh Thu Rạp -->
+      <a href="Form/TinhDoanhThuRap.html" class="menu-card card-3">
+        <div class="icon">📊</div>
+        <h3>Thống Kê Doanh Thu Rạp</h3>
+        <p>Xem báo cáo doanh thu của các rạp chiếu phim theo khoảng thời gian.</p>
+      </a>
+
+      <!-- Card 4: Top 5 Phim -->
+      <a href="Form/Top5PhimDoanhThu.html" class="menu-card card-4">
+        <div class="icon">🏆</div>
+        <h3>Top 5 Phim Doanh Thu Cao</h3>
+        <p>Xem bảng xếp hạng 5 phim có doanh thu cao nhất trong khoảng thời gian.</p>
+      </a>
+
+      <!-- Card 5: Tài Khoản Chi Tiêu Cao -->
+      <a href="Form/TaiKhoanTieuNhieu.html" class="menu-card card-1">
+        <div class="icon">💰</div>
+        <h3>Tài Khoản Chi Tiêu Cao</h3>
+        <p>Xem danh sách khách hàng có tổng chi tiêu cao, hỗ trợ lọc và thống kê.</p>
+      </a>
     </div>
   </div>
 
   <script>
-    document.body.addEventListener("mousemove", followMouse);
+    // Logo nhỏ theo chuột
+    const tinyLogo = document.getElementById('tiny-logo');
+    let mouseX = 0, mouseY = 0;
+    let logoX = 0, logoY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function followMouse() {
+      const speed = 0.1;
+      logoX += (mouseX - logoX - 25) * speed;
+      logoY += (mouseY - logoY - 25) * speed;
+      
+      tinyLogo.style.left = logoX + 'px';
+      tinyLogo.style.top = logoY + 'px';
+      
+      requestAnimationFrame(followMouse);
+    }
+
+    followMouse();
   </script>
-  
 </body>
 </html>

@@ -1,150 +1,398 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="form-styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Suất Chiếu</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .container {
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    .search-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .search-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-group input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #e50914;
+    }
+    .btn-search {
+      background: #e50914;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn-search:hover {
+      background: #b20710;
+    }
+    .btn-reset {
+      background: #555;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn-reset:hover {
+      background: #333;
+    }
+    .result-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #output table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    #output th {
+      background: #e50914;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+    }
+    #output td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    #output tr:hover {
+      background: #f5f5f5;
+    }
+    .sort-btn {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 5px;
+    }
+    .btn-edit {
+      background: #4CAF50;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-edit:hover {
+      background: #45a049;
+    }
+    .btn-delete {
+      background: #f44336;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-delete:hover {
+      background: #da190b;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background: white;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 10px;
+      width: 500px;
+      max-width: 90%;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .close {
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #aaa;
+    }
+    .close:hover {
+      color: #000;
+    }
+    .modal-form .form-group {
+      margin-bottom: 15px;
+    }
+    .modal-form input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-buttons button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .info {
+      color: #666;
+      font-style: italic;
+    }
+    .error {
+      color: #e50914;
+      padding: 10px;
+      background: #ffe6e6;
+      border-radius: 5px;
+    }
+    .success {
+      color: #155724;
+      padding: 10px;
+      background: #d4edda;
+      border-radius: 5px;
+    }
+  </style>
   <script src="../../BE/fc.js"></script>
-  <script src="../../BE/server.js"></script>
-  <script src="Form.js"></script> 
-  <title>Gọi Thủ Tục Tìm Suất Chiếu</title>
 </head>
 <body>
-
-  <!-- Logo ở góc phải trên -->
-  <button class="back-button" onclick="window.location.href='../index.html'">Quay lại</button>
-  <div class="logo-container">
-    <img src="../cgvlogo.png" alt="Logo" />
-  </div>
-
   <div class="container">
-    <h1 style="margin-top: 20px;">Tìm, Sửa, Xóa suất chiếu</h1>
+    <h2 style="text-align: center; color: #e50914; margin-bottom: 30px;">
+      🎬 QUẢN LÝ SUẤT CHIẾU
+    </h2>
 
-    <div id="form-container">
-      <div class="form-group">
-        <label for="ngay">Ngày:</label>
-        <input type="date" id="ngay">
-      </div>
-
-      <div class="form-group">
-        <label for="gio">Giờ:</label>
-        <input type="time" id="gio">
-      </div>
-
-      <div class="form-group">
-        <label for="rap">Tên rạp:</label>
-        <input type="text" id="rap" placeholder="Tên rạp">
-      </div>
-
-      <div class="form-group">
-        <label for="tuade">Tựa đề:</label>
-        <input type="text" id="tuade" placeholder="Tựa đề phim">
-      </div>
-
-      <div class="form-group" style="flex: 0 0 auto;">
-        <button onclick="getsuatchieu();callFunction(getTimSuatChieuParams,null);showCheckMark('80px','140px','30px')">Lọc thông tin</button>
-      </div>
+    <!-- Panel Tìm Kiếm -->
+    <div class="search-panel">
+      <h3>🔍 Tìm Kiếm Suất Chiếu</h3>
+      <form id="searchForm" onsubmit="return handleSearch(event)">
+        <div class="search-row">
+          <div class="form-group">
+            <label for="NgayChieu">Ngày Chiếu</label>
+            <input type="date" id="NgayChieu" name="NgayChieu">
+          </div>
+          <div class="form-group">
+            <label for="Gio">Giờ Bắt Đầu (từ)</label>
+            <input type="time" id="Gio" name="Gio">
+          </div>
+          <div class="form-group">
+            <label for="TenRap">Tên Rạp</label>
+            <input type="text" id="TenRap" name="TenRap" placeholder="VD: CGV Vincom">
+          </div>
+          <div class="form-group">
+            <label for="TuaDe">Tựa Đề Phim</label>
+            <input type="text" id="TuaDe" name="TuaDe" placeholder="VD: Avatar">
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn-search">🔍 Tìm Kiếm</button>
+          <button type="button" class="btn-reset" onclick="resetSearch()">🔄 Đặt Lại</button>
+          <button type="button" class="btn-search" onclick="window.location.href='../index.html'">
+            🏠 Trang Chủ
+          </button>
+        </div>
+      </form>
     </div>
 
-    <div id="output"></div>
+    <!-- Panel Kết Quả -->
+    <div class="result-panel">
+      <h3>📋 Kết Quả Tìm Kiếm</h3>
+      <div id="output">
+        <p class="info">Vui lòng nhập điều kiện tìm kiếm và nhấn "Tìm Kiếm"</p>
+      </div>
+    </div>
   </div>
 
-    <!-- Đây là phần modal ẩn ban đầu -->
-<div id="editModal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
-  <div style="background:white; padding:20px; border-radius:8px; width:800px; position:relative; display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px;">
-
-    <!-- Nút đóng (×) -->
-
-    <h3 style="width: 100%; text-align: center;">Cập nhật suất chiếu (Giờ/Phòng)</h3>
-
-    <form id="updateForm" style="width: 100%; display: flex; flex-wrap: wrap; gap: 10px;">
-
-      <div style="width: 45%;">
-
-        <label>Mã Suất Chiếu: <input type="text" name="p_MaSuatChieu" maxlength="7" required readonly></label>
-
+  <!-- Modal Cập Nhật -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✏️ Cập Nhật Suất Chiếu</h3>
+        <span class="close" onclick="closeModal('editModal')">&times;</span>
       </div>
-
-      <div style="width: 45%;">
-
-        <label>Mã Phim: <input type="text" name="p_MaPhim" maxlength="10" required readonly></label>
-
-      </div>
-
-      <div style="width: 45%;">
-
-        <label>Mã Rạp: <input type="text" name="p_MaRap" maxlength="5" required readonly></label>
-
-      </div>
-
-      <div style="width: 45%;">
-
-        <label>Giờ Bắt Đầu Mới: <input type="time" name="p_GioBatDauMoi"></label>
-
-      </div>
-
-      <div style="width: 45%;">
-
-        <label>Mã Phòng Mới: <input type="number" name="p_MaPhongMoi" min="1"></label>
-
-      </div>
-
- 
-
-      <div style="width: 100%; padding: 10px; background: #fffacd; border-radius: 4px; font-size: 13px;">
-
-        <strong>Lưu ý:</strong> Chỉ có thể cập nhật Giờ Bắt Đầu và/hoặc Phòng Chiếu. Để trống nếu không muốn thay đổi.
-      </div>
-
-      <!-- Các nút Cập nhật và Hủy -->
-      <div style="display: flex; justify-content: space-between; width: 100%; padding-top: 20px;">
-        <button type="button" onclick="callFunction(getupdate, 'update');callFunction(getTimSuatChieuParams,null)">Cập nhật</button>
-        <button type="button" onclick="closeModal('editModal');callFunction(getTimSuatChieuParams,null)">Hủy</button>
-      </div>
-      <div id="output2"></div>
-    </form>
+      <form name="updateForm" class="modal-form" onsubmit="return handleUpdate(event)">
+        <div class="form-group">
+          <label>Mã Suất Chiếu</label>
+          <input type="text" name="p_MaSuatChieu" readonly style="background: #f0f0f0;">
+        </div>
+        <div class="form-group">
+          <label>Mã Phim</label>
+          <input type="text" name="p_MaPhim" readonly style="background: #f0f0f0;">
+        </div>
+        <div class="form-group">
+          <label>Mã Rạp</label>
+          <input type="text" name="p_MaRap" readonly style="background: #f0f0f0;">
+        </div>
+        <div class="form-group">
+          <label>Giờ Bắt Đầu Mới (để trống nếu không đổi)</label>
+          <input type="time" name="p_GioBatDauMoi">
+        </div>
+        <div class="form-group">
+          <label>Mã Phòng Mới (để trống nếu không đổi)</label>
+          <input type="number" name="p_MaPhongMoi" min="1" placeholder="VD: 1">
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" style="background: #4CAF50; color: white;">
+            ✅ Cập Nhật
+          </button>
+          <button type="button" style="background: #999; color: white;" 
+                  onclick="closeModal('editModal')">
+            ❌ Hủy
+          </button>
+        </div>
+      </form>
+      <div id="message"></div>
+    </div>
   </div>
-</div>
-<div id="editModal2" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
-  <div style="background:white; padding:20px; border-radius:8px; width:400px; position:relative; display: flex; flex-direction: column; gap: 20px;">
-    
-    <h3 style="text-align: center;">Xóa suất chiếu</h3>
-    <form id="deleteForm" style="display: flex; flex-direction: column; gap: 15px;">
-      <label>Mã Suất Chiếu:
 
-        <input type="text" name="p_MaSuatChieu" maxlength="7" required readonly>
-
-      </label>
-
- 
-
-      <label>Mã Phim:
-
-        <input type="text" name="p_MaPhim" maxlength="10" required readonly>
-
-      </label>
-
- 
-
-      <div style="padding: 10px; background: #ffebee; border-radius: 4px; font-size: 13px; color: #c62828;">
-
-        <strong>⚠️ Cảnh báo:</strong> Hành động này không thể hoàn tác!
-
+  <!-- Modal Xóa -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🗑️ Xóa Suất Chiếu</h3>
+        <span class="close" onclick="closeModal('deleteModal')">&times;</span>
       </div>
-
- 
-
-      <!-- Nút Xác nhận và Hủy -->
-
-      <div style="display: flex; justify-content: space-between; padding-top: 10px;">
-
-        <button type="button" style="background: #f44336;" onclick="callFunction(getdelete, 'delete');callFunction(getTimSuatChieuParams,null)">Xác nhận xóa</button>
-        <button type="button" onclick="closeModal('editModal2');callFunction(getTimSuatChieuParams,null)">Hủy</button>
-      </div>
-      <div id="output3"></div>
-    </form>
+      <form name="deleteForm" class="modal-form" onsubmit="return handleDelete(event)">
+        <div class="form-group">
+          <label>Mã Suất Chiếu</label>
+          <input type="text" name="p_MaSuatChieu" readonly style="background: #f0f0f0;">
+        </div>
+        <div class="form-group">
+          <label>Mã Phim</label>
+          <input type="text" name="p_MaPhim" readonly style="background: #f0f0f0;">
+        </div>
+        <p style="color: #e50914; font-weight: bold; margin: 15px 0;">
+          ⚠️ Bạn có chắc chắn muốn xóa suất chiếu này?
+        </p>
+        <div class="modal-buttons">
+          <button type="submit" style="background: #f44336; color: white;">
+            🗑️ Xác Nhận Xóa
+          </button>
+          <button type="button" style="background: #999; color: white;" 
+                  onclick="closeModal('deleteModal')">
+            ❌ Hủy
+          </button>
+        </div>
+      </form>
+      <div id="message"></div>
+    </div>
   </div>
-</div>
 
+  <script>
+    function handleSearch(event) {
+      event.preventDefault();
+      
+      const form = document.getElementById('searchForm');
+      const params = [
+        form.NgayChieu.value || null,
+        form.Gio.value || null,
+        form.TenRap.value.trim() || null,
+        form.TuaDe.value.trim() || null
+      ];
+
+      callProcedure('TimSuatChieu', params);
+      return false;
+    }
+
+    function resetSearch() {
+      document.getElementById('searchForm').reset();
+      document.getElementById('output').innerHTML = 
+        '<p class="info">Vui lòng nhập điều kiện tìm kiếm và nhấn "Tìm Kiếm"</p>';
+    }
+
+    function handleUpdate(event) {
+      event.preventDefault();
+      
+      const form = document.forms['updateForm'];
+      
+      // Validation
+      if (!form.p_GioBatDauMoi.value && !form.p_MaPhongMoi.value) {
+        document.getElementById('message').innerHTML = 
+          '<p class="error">❌ Vui lòng nhập ít nhất một trường cần cập nhật</p>';
+        return false;
+      }
+
+      const params = [
+        form.p_MaSuatChieu.value,
+        form.p_MaPhim.value,
+        form.p_GioBatDauMoi.value || null,
+        form.p_MaPhongMoi.value ? parseInt(form.p_MaPhongMoi.value) : null,
+        form.p_MaRap.value
+      ];
+
+      callUpdate('Update_ThongTinSuatChieu', params);
+      
+      // Refresh search results after 2 seconds
+      setTimeout(() => {
+        handleSearch({ preventDefault: () => {} });
+      }, 2000);
+
+      return false;
+    }
+
+    function handleDelete(event) {
+      event.preventDefault();
+      
+      const form = document.forms['deleteForm'];
+      const params = [
+        form.p_MaSuatChieu.value,
+        form.p_MaPhim.value
+      ];
+
+      callDelete('Delete_SuatChieu', params);
+      
+      // Refresh search results after 2 seconds
+      setTimeout(() => {
+        handleSearch({ preventDefault: () => {} });
+      }, 2000);
+
+      return false;
+    }
+
+    // Load all data on page load
+    window.onload = function() {
+      callProcedure('TimSuatChieu', [null, null, null, null]);
+    };
+  </script>
 </body>
 </html>
