@@ -45,6 +45,16 @@ async function startServer() {
     process.exit(1);
   }
 }
+const path = require('path');
+
+// ⚠️ Giả sử thư mục chứa các file HTML là ../FE
+// Nếu bạn đặt HTML ở nơi khác, chỉnh lại đường dẫn bên dưới
+app.use(express.static(path.join(__dirname, '../FE')));
+
+// Khi truy cập /, trả về index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../FE/index.html'));
+});
 
 // Bắt đầu server
 startServer();
